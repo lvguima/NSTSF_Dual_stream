@@ -32,17 +32,17 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
     def _log_graph_stats(self, setting, epoch, step, model_ref):
         adjs = getattr(model_ref, "last_graph_adjs", None)
-        if not adjs:
-            return
         log_dir = self._graph_log_dir(setting)
         topk = int(getattr(self.args, "graph_log_topk", 5))
         num_segments = int(getattr(self.args, "graph_log_num_segments", 1))
 
         raw_adjs = getattr(model_ref, "last_graph_raw_adjs", None)
         base_adj = getattr(model_ref, "last_graph_base_adj", None)
-        stats = compute_graph_stats(adjs, topk=topk, raw_adjs=raw_adjs, base_adj=base_adj)
-        if stats is None:
-            return
+        stats = {}
+        if adjs:
+            adj_stats = compute_graph_stats(adjs, topk=topk, raw_adjs=raw_adjs, base_adj=base_adj)
+            if adj_stats is not None:
+                stats.update(adj_stats)
         gate_tensor = None
         if hasattr(model_ref, "graph_mixer"):
             gate_param = getattr(model_ref.graph_mixer, "gate", None)
@@ -65,6 +65,15 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             stats["E_trend"] = float(decomp_energy[0])
             stats["E_season"] = float(decomp_energy[1])
             stats["E_ratio"] = float(decomp_energy[2])
+        factor_alpha = getattr(model_ref, "last_factor_alpha", None)
+        if factor_alpha is not None:
+            stats.update(compute_tensor_stats(factor_alpha, prefix="factor_alpha_"))
+        factor_entropy = getattr(model_ref, "last_factor_entropy", None)
+        if factor_entropy is not None:
+            stats.update(compute_tensor_stats(factor_entropy, prefix="factor_entropy_"))
+        factor_reg = getattr(model_ref, "last_factor_reg", None)
+        if factor_reg is not None:
+            stats["factor_reg"] = float(factor_reg.detach().cpu())
         stats = {
             "epoch": epoch,
             "step": step,
@@ -72,8 +81,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         }
         append_graph_stats(os.path.join(log_dir, "stats.csv"), stats)
 
-        vis_dir = os.path.join(log_dir, f"epoch{epoch:03d}_step{step:05d}")
-        save_graph_visuals(adjs, vis_dir, topk=topk, num_segments=num_segments)
+        if adjs:
+            vis_dir = os.path.join(log_dir, f"epoch{epoch:03d}_step{step:05d}")
+            save_graph_visuals(adjs, vis_dir, topk=topk, num_segments=num_segments)
 
     def _graph_log_dir(self, setting):
         log_root = getattr(self.args, "graph_log_dir", "./graph_logs")
@@ -92,6 +102,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             base_reg = getattr(model_ref, "graph_base_reg_loss", None)
             if base_reg is not None:
                 total = total + base_reg * self.args.graph_base_l1
+        if hasattr(self.args, "factor_reg_lambda") and self.args.factor_reg_lambda > 0:
+            factor_reg = getattr(model_ref, "factor_reg_loss", None)
+            if factor_reg is not None:
+                total = total + factor_reg * self.args.factor_reg_lambda
         return total
 
     def _build_model(self):

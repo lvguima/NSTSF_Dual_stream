@@ -222,6 +222,12 @@ if __name__ == '__main__':
     parser.add_argument('--stable_detach', action='store_true', default=False,
                         help='detach stable stream from gradient flow')
 
+    # FactorMix
+    parser.add_argument('--factor_mix', type=int, default=0, help='use factor mixing (0 disables)')
+    parser.add_argument('--factor_rank', type=int, default=8, help='rank for factor mixing')
+    parser.add_argument('--factor_alpha_init', type=float, default=-8.0, help='init logit for factor alpha')
+    parser.add_argument('--factor_reg_lambda', type=float, default=0.0, help='factor regularization weight')
+
     # DynamicGraphMixer logging
     parser.add_argument('--graph_log_exp_id', type=str, default='',
                         help='log subdir name for graph logs (overrides setting when provided)')

@@ -21,15 +21,18 @@ class Exp_Short_Term_Forecast(Exp_Basic):
         super(Exp_Short_Term_Forecast, self).__init__(args)
 
     def _get_graph_reg_loss(self):
-        if not hasattr(self.args, "graph_smooth_lambda"):
-            return 0.0
-        if self.args.graph_smooth_lambda <= 0:
-            return 0.0
         model_ref = self.model.module if isinstance(self.model, nn.DataParallel) else self.model
-        graph_reg = getattr(model_ref, "graph_reg_loss", None)
-        if graph_reg is None:
-            return 0.0
-        return graph_reg * self.args.graph_smooth_lambda
+        graph_term = 0.0
+        if hasattr(self.args, "graph_smooth_lambda") and self.args.graph_smooth_lambda > 0:
+            graph_reg = getattr(model_ref, "graph_reg_loss", None)
+            if graph_reg is not None:
+                graph_term = graph_reg * self.args.graph_smooth_lambda
+        factor_term = 0.0
+        if hasattr(self.args, "factor_reg_lambda") and self.args.factor_reg_lambda > 0:
+            factor_reg = getattr(model_ref, "factor_reg_loss", None)
+            if factor_reg is not None:
+                factor_term = factor_reg * self.args.factor_reg_lambda
+        return graph_term + factor_term
 
     def _build_model(self):
         if self.args.data == 'm4':

@@ -6,6 +6,7 @@ from modules.temporal import TemporalEncoderWrapper
 from modules.graph_learner import LowRankGraphLearner
 from modules.graph_map import GraphMapNormalizer
 from modules.mixer import GraphMixer
+from modules.factor_mixer import FactorMixer
 from modules.head import ForecastHead
 from modules.stable_feat import StableFeature, StableFeatureToken
 
@@ -64,6 +65,9 @@ class Model(nn.Module):
         self.adj_topk = int(getattr(configs, "adj_topk", 0))
         self.gate_mode = str(getattr(configs, "gate_mode", "none")).lower()
         self.gate_init = float(getattr(configs, "gate_init", -4.0))
+        self.factor_mix = bool(int(getattr(configs, "factor_mix", 0)))
+        self.factor_rank = int(getattr(configs, "factor_rank", 8))
+        self.factor_alpha_init = float(getattr(configs, "factor_alpha_init", -8.0))
         self.graph_source = str(getattr(configs, "graph_source", "content_mean")).lower()
         self.stable_level = str(getattr(configs, "stable_level", "point")).lower()
         self.stable_feat_type = str(getattr(configs, "stable_feat_type", "none")).lower()
@@ -152,6 +156,13 @@ class Model(nn.Module):
             num_tokens=self.num_tokens,
             gate_init=self.gate_init,
         )
+        self.factor_mixer = None
+        if self.factor_mix:
+            self.factor_mixer = FactorMixer(
+                num_vars=self.enc_in,
+                rank=self.factor_rank,
+                alpha_init=self.factor_alpha_init,
+            )
         self.head = ForecastHead(
             d_model=configs.d_model,
             num_tokens=self.num_tokens,
@@ -159,6 +170,7 @@ class Model(nn.Module):
         )
         self.graph_reg_loss = None
         self.graph_base_reg_loss = None
+        self.factor_reg_loss = None
         self.graph_log = bool(getattr(configs, "graph_log", False))
         self.last_graph_adjs = None
         self.last_graph_raw_adjs = None
@@ -166,6 +178,10 @@ class Model(nn.Module):
         self.last_graph_map_mean_abs = None
         self.last_graph_map_std_mean = None
         self.last_decomp_energy = None
+        self.last_factor_adj = None
+        self.last_factor_entropy = None
+        self.last_factor_alpha = None
+        self.last_factor_reg = None
 
     def _sparsify_adj(self, adj):
         if self.adj_sparsify != "topk":
@@ -289,6 +305,26 @@ class Model(nn.Module):
 
     def _forecast_graph(self, x_enc):
         h_time = self._encode_with_patch_mode(x_enc, self.temporal_encoder)
+        if self.factor_mixer is not None:
+            h_mix = self.factor_mixer(h_time)
+            self.graph_reg_loss = h_time.new_tensor(0.0)
+            self.factor_reg_loss = self.factor_mixer.last_reg_loss
+            self.last_factor_adj = self.factor_mixer.last_adj
+            self.last_factor_entropy = self.factor_mixer.last_entropy
+            self.last_factor_alpha = self.factor_mixer.last_alpha
+            self.last_factor_reg = self.factor_mixer.last_reg_loss
+            if self.graph_log:
+                self.last_graph_adjs = None
+                self.last_graph_raw_adjs = None
+                self.last_graph_base_adj = None
+            if self.c_out < h_mix.shape[1]:
+                h_mix = h_mix[:, -self.c_out:, :, :]
+            return self.head(h_mix)
+
+        self.last_factor_adj = None
+        self.last_factor_entropy = None
+        self.last_factor_alpha = None
+        self.last_factor_reg = None
         h_graph = self._select_graph_tokens(x_enc, h_time)
         h_map = self.graph_map(h_graph)
         if self.graph_map_detach and h_map is not None:
