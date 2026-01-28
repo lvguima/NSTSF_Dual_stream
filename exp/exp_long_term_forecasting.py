@@ -65,6 +65,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             stats["E_trend"] = float(decomp_energy[0])
             stats["E_season"] = float(decomp_energy[1])
             stats["E_ratio"] = float(decomp_energy[2])
+        decomp_gate = getattr(model_ref, "last_decomp_gate", None)
+        if decomp_gate is not None:
+            stats.update(compute_tensor_stats(decomp_gate, prefix="decomp_gate_"))
         factor_alpha = getattr(model_ref, "last_factor_alpha", None)
         if factor_alpha is not None:
             stats.update(compute_tensor_stats(factor_alpha, prefix="factor_alpha_"))

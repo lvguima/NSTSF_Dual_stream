@@ -7,6 +7,7 @@ from modules.graph_learner import LowRankGraphLearner
 from modules.graph_map import GraphMapNormalizer
 from modules.mixer import GraphMixer
 from modules.factor_mixer import FactorMixer
+from modules.decomp_gate import DecompGate
 from modules.head import ForecastHead
 from modules.stable_feat import StableFeature, StableFeatureToken
 
@@ -68,6 +69,10 @@ class Model(nn.Module):
         self.factor_mix = bool(int(getattr(configs, "factor_mix", 0)))
         self.factor_rank = int(getattr(configs, "factor_rank", 8))
         self.factor_alpha_init = float(getattr(configs, "factor_alpha_init", -8.0))
+        self.decomp_gate_on = bool(int(getattr(configs, "decomp_gate", 0)))
+        self.decomp_gate_hidden = int(getattr(configs, "decomp_gate_hidden", 16))
+        self.decomp_gate_bias_init = float(getattr(configs, "decomp_gate_bias_init", 2.0))
+        self.decomp_gate_force = float(getattr(configs, "decomp_gate_force", -1.0))
         self.graph_source = str(getattr(configs, "graph_source", "content_mean")).lower()
         self.stable_level = str(getattr(configs, "stable_level", "point")).lower()
         self.stable_feat_type = str(getattr(configs, "stable_feat_type", "none")).lower()
@@ -163,6 +168,12 @@ class Model(nn.Module):
                 rank=self.factor_rank,
                 alpha_init=self.factor_alpha_init,
             )
+        self.decomp_gate = None
+        if self.decomp_gate_on:
+            self.decomp_gate = DecompGate(
+                hidden_dim=self.decomp_gate_hidden,
+                bias_init=self.decomp_gate_bias_init,
+            )
         self.head = ForecastHead(
             d_model=configs.d_model,
             num_tokens=self.num_tokens,
@@ -182,6 +193,7 @@ class Model(nn.Module):
         self.last_factor_entropy = None
         self.last_factor_alpha = None
         self.last_factor_reg = None
+        self.last_decomp_gate = None
 
     def _sparsify_adj(self, adj):
         if self.adj_sparsify != "topk":
@@ -371,9 +383,19 @@ class Model(nn.Module):
                 self.last_decomp_energy = None
             season_out = self._forecast_graph(x_season)
             trend_out = self._forecast_trend(x_trend)
+            if 0.0 <= self.decomp_gate_force <= 1.0:
+                gate = season_out.new_full((x_enc.shape[0], x_enc.shape[2]), self.decomp_gate_force)
+                self.last_decomp_gate = gate.detach()
+                return trend_out + gate.unsqueeze(1) * season_out
+            if self.decomp_gate is not None:
+                gate = self.decomp_gate(x_enc, x_season)
+                self.last_decomp_gate = gate.detach()
+                return trend_out + gate.unsqueeze(1) * season_out
+            self.last_decomp_gate = None
             return season_out + trend_out
 
         self.last_decomp_energy = None
+        self.last_decomp_gate = None
         return self._forecast_graph(x_enc)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):

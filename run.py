@@ -228,6 +228,13 @@ if __name__ == '__main__':
     parser.add_argument('--factor_alpha_init', type=float, default=-8.0, help='init logit for factor alpha')
     parser.add_argument('--factor_reg_lambda', type=float, default=0.0, help='factor regularization weight')
 
+    # Decomp Gate
+    parser.add_argument('--decomp_gate', type=int, default=0, help='use decomposition gate (0 disables)')
+    parser.add_argument('--decomp_gate_hidden', type=int, default=16, help='hidden size for decomp gate MLP')
+    parser.add_argument('--decomp_gate_bias_init', type=float, default=2.0, help='init bias for decomp gate')
+    parser.add_argument('--decomp_gate_force', type=float, default=-1.0,
+                        help='force decomp gate value in [0,1], -1 disables')
+
     # DynamicGraphMixer logging
     parser.add_argument('--graph_log_exp_id', type=str, default='',
                         help='log subdir name for graph logs (overrides setting when provided)')
