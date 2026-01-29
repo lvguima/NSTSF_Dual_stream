@@ -59,6 +59,7 @@ COMMON = [
 EXPS = [
     ("E0", ["--bridge_couple", "0"]),
     ("E1", ["--bridge_couple", "1", "--bridge_alpha_init", "-20"]),
+    ("E2", ["--bridge_couple", "1", "--bridge_alpha_init", "-6"]),
     ("E3", ["--bridge_couple", "1", "--bridge_alpha_init", "-4"]),
     ("E4", ["--bridge_couple", "1", "--bridge_alpha_init", "-2"]),
 ]
