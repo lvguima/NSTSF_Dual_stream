@@ -20,9 +20,9 @@
 
 | Dataset | E5 (FiLM off) mse | E5 mae | E6 (FiLM on) mse | E6 mae | Notes |
 | --- | --- | --- | --- | --- | --- |
-| ETTm1 | TBD | TBD | TBD | TBD | |
-| weather | TBD | TBD | TBD | TBD | |
-| flotation | TBD | TBD | TBD | TBD | |
+| ETTm1 | 0.3192521929740906 | 0.35906386375427246 | 0.3208581805229187 | 0.3594478964805603 | |
+| weather | 0.17277957499027252 | 0.2314584106206894 | 0.1706022024154663 | 0.2322077602148056 | |
+| flotation | 0.7909365296363831 | 0.6239601969718933 | 0.7808429598808289 | 0.6234134435653687 | |
 
 ## E7/E8 — Decomp Gate On/Off (best coupling setting)
 
@@ -72,6 +72,38 @@ E_ratio=0.863024, E_season=0.0986495, E_trend=0.621546, alpha_max=0.00033535, al
 ```
 
 ### flotation_V5_E2
+```
+no extra stats (only mse/mae)
+```
+
+## Diagnostics E5/E6 (stats.csv last row, excluding mse/mae)
+
+### ETTm1_V5_E5
+```
+E_ratio=0.87274, E_season=0.120789, E_trend=0.82836, alpha_max=0.00033535, alpha_mean=0.00033535, alpha_min=0.00033535, alpha_p10=0.00033535, alpha_p50=0.00033535, alpha_p90=0.00033535, alpha_sat_high=0, alpha_sat_low=1, alpha_std=0, bridge_adj_diff_max=0.122046, bridge_adj_diff_mean=0.042013, bridge_adj_diff_min=0.0015973, bridge_adj_diff_p10=0.0179689, bridge_adj_diff_p50=0.0438238, bridge_adj_diff_p90=0.0621661, bridge_adj_diff_sat_high=0, bridge_adj_diff_sat_low=0.653409, bridge_adj_diff_std=0.0172181, bridge_alpha_max=0.0174896, bridge_alpha_mean=0.0174896, bridge_alpha_min=0.0174896, bridge_alpha_p10=0.0174896, bridge_alpha_p50=0.0174896, bridge_alpha_p90=0.0174896, bridge_alpha_sat_high=0, bridge_alpha_sat_low=1, bridge_alpha_std=0, bridge_entropy_max=1.79176, bridge_entropy_mean=1.78166, bridge_entropy_min=0.376857, bridge_entropy_p10=1.7739, bridge_entropy_p50=1.79126, bridge_entropy_p90=1.79175, bridge_entropy_sat_high=0.999628, bridge_entropy_sat_low=0, bridge_entropy_std=0.0431953, bridge_topk_mass_max=0.999951, bridge_topk_mass_mean=0.875626, bridge_topk_mass_min=0.857145, bridge_topk_mass_p10=0.857942, bridge_topk_mass_p50=0.865468, bridge_topk_mass_p90=0.90677, bridge_topk_mass_sat_high=0.0331101, bridge_topk_mass_sat_low=0, bridge_topk_mass_std=0.0260459, gate_max=2.06115e-09, gate_mean=2.06115e-09, gate_min=2.06115e-09, gate_p10=2.06115e-09, gate_p50=2.06115e-09, gate_p90=2.06115e-09, gate_sat_high=0, gate_sat_low=1, gate_std=2.22045e-16
+```
+
+### ETTm1_V5_E6
+```
+E_ratio=0.858766, E_season=0.133719, E_trend=0.813072, alpha_max=0.00033535, alpha_mean=0.00033535, alpha_min=0.00033535, alpha_p10=0.00033535, alpha_p50=0.00033535, alpha_p90=0.00033535, alpha_sat_high=0, alpha_sat_low=1, alpha_std=0, bridge_adj_diff_max=0.127483, bridge_adj_diff_mean=0.0436082, bridge_adj_diff_min=0.00129979, bridge_adj_diff_p10=0.0182603, bridge_adj_diff_p50=0.0457076, bridge_adj_diff_p90=0.0629331, bridge_adj_diff_sat_high=0, bridge_adj_diff_sat_low=0.615057, bridge_adj_diff_std=0.0184788, bridge_alpha_max=0.0177409, bridge_alpha_mean=0.0177409, bridge_alpha_min=0.0177409, bridge_alpha_p10=0.0177409, bridge_alpha_p50=0.0177409, bridge_alpha_p90=0.0177409, bridge_alpha_sat_high=0, bridge_alpha_sat_low=1, bridge_alpha_std=0, bridge_entropy_max=1.79176, bridge_entropy_mean=1.7802, bridge_entropy_min=0.849148, bridge_entropy_p10=1.77288, bridge_entropy_p50=1.79128, bridge_entropy_p90=1.79175, bridge_entropy_sat_high=0.999628, bridge_entropy_sat_low=0, bridge_entropy_std=0.0481152, bridge_topk_mass_max=0.999996, bridge_topk_mass_mean=0.875682, bridge_topk_mass_min=0.857148, bridge_topk_mass_p10=0.857991, bridge_topk_mass_p50=0.865193, bridge_topk_mass_p90=0.90798, bridge_topk_mass_sat_high=0.0372024, bridge_topk_mass_sat_low=0, bridge_topk_mass_std=0.0268304, gate_max=2.06115e-09, gate_mean=2.06115e-09, gate_min=2.06115e-09, gate_p10=2.06115e-09, gate_p50=2.06115e-09, gate_p90=2.06115e-09, gate_sat_high=0, gate_sat_low=1, gate_std=2.22045e-16
+```
+
+### weather_V5_E5
+```
+E_ratio=0.863024, E_season=0.0986495, E_trend=0.621546, alpha_max=0.00033535, alpha_mean=0.00033535, alpha_min=0.00033535, alpha_p10=0.00033535, alpha_p50=0.00033535, alpha_p90=0.00033535, alpha_sat_high=0, alpha_sat_low=1, alpha_std=0, bridge_adj_diff_max=0.0763523, bridge_adj_diff_mean=0.0559885, bridge_adj_diff_min=0.0196622, bridge_adj_diff_p10=0.0438396, bridge_adj_diff_p50=0.0574463, bridge_adj_diff_p90=0.0657622, bridge_adj_diff_sat_high=0, bridge_adj_diff_sat_low=0.214489, bridge_adj_diff_std=0.00885465, bridge_alpha_max=0.0178144, bridge_alpha_mean=0.0178144, bridge_alpha_min=0.0178144, bridge_alpha_p10=0.0178144, bridge_alpha_p50=0.0178144, bridge_alpha_p90=0.0178144, bridge_alpha_sat_high=0, bridge_alpha_sat_low=1, bridge_alpha_std=0, bridge_entropy_max=1.79176, bridge_entropy_mean=1.79176, bridge_entropy_min=1.79102, bridge_entropy_p10=1.79176, bridge_entropy_p50=1.79176, bridge_entropy_p90=1.79176, bridge_entropy_sat_high=1, bridge_entropy_sat_low=0, bridge_entropy_std=1.52679e-05, bridge_topk_mass_max=0.303701, bridge_topk_mass_mean=0.285851, bridge_topk_mass_min=0.285717, bridge_topk_mass_p10=0.285727, bridge_topk_mass_p50=0.285749, bridge_topk_mass_p90=0.285931, bridge_topk_mass_sat_high=0, bridge_topk_mass_sat_low=0, bridge_topk_mass_std=0.000566875, gate_max=2.06115e-09, gate_mean=2.06115e-09, gate_min=2.06115e-09, gate_p10=2.06115e-09, gate_p50=2.06115e-09, gate_p90=2.06115e-09, gate_sat_high=0, gate_sat_low=1, gate_std=2.22045e-16
+```
+
+### weather_V5_E6
+```
+E_ratio=0.855601, E_season=0.14633, E_trend=0.86704, alpha_max=0.00033535, alpha_mean=0.00033535, alpha_min=0.00033535, alpha_p10=0.00033535, alpha_p50=0.00033535, alpha_p90=0.00033535, alpha_sat_high=0, alpha_sat_low=1, alpha_std=0, bridge_adj_diff_max=0.0816444, bridge_adj_diff_mean=0.0557644, bridge_adj_diff_min=0.02419, bridge_adj_diff_p10=0.0438466, bridge_adj_diff_p50=0.0566899, bridge_adj_diff_p90=0.0657618, bridge_adj_diff_sat_high=0, bridge_adj_diff_sat_low=0.224432, bridge_adj_diff_std=0.00855482, bridge_alpha_max=0.0177805, bridge_alpha_mean=0.0177805, bridge_alpha_min=0.0177805, bridge_alpha_p10=0.0177805, bridge_alpha_p50=0.0177805, bridge_alpha_p90=0.0177805, bridge_alpha_sat_high=0, bridge_alpha_sat_low=1, bridge_alpha_std=0, bridge_entropy_max=1.79176, bridge_entropy_mean=1.79176, bridge_entropy_min=1.78691, bridge_entropy_p10=1.79176, bridge_entropy_p50=1.79176, bridge_entropy_p90=1.79176, bridge_entropy_sat_high=1, bridge_entropy_sat_low=0, bridge_entropy_std=6.59896e-05, bridge_topk_mass_max=0.326846, bridge_topk_mass_mean=0.285868, bridge_topk_mass_min=0.285717, bridge_topk_mass_p10=0.285729, bridge_topk_mass_p50=0.285757, bridge_topk_mass_p90=0.285968, bridge_topk_mass_sat_high=0, bridge_topk_mass_sat_low=0, bridge_topk_mass_std=0.000753474, gate_max=2.06115e-09, gate_mean=2.06115e-09, gate_min=2.06115e-09, gate_p10=2.06115e-09, gate_p50=2.06115e-09, gate_p90=2.06115e-09, gate_sat_high=0, gate_sat_low=1, gate_std=2.22045e-16
+```
+
+### flotation_V5_E5
+```
+no extra stats (only mse/mae)
+```
+
+### flotation_V5_E6
 ```
 no extra stats (only mse/mae)
 ```
