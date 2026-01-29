@@ -12,9 +12,9 @@
 
 | Dataset | E2 (-6) mse | E2 mae | E3 (-4) mse | E3 mae | E4 (-2) mse | E4 mae | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ETTm1 | — | — | 0.31890594959259033 | 0.3591580092906952 | 0.3199918270111084 | 0.36085328459739685 | |
-| weather | — | — | 0.1728384792804718 | 0.23151825368404388 | 0.17323358356952667 | 0.2315613329410553 | |
-| flotation | — | — | 0.7909660339355469 | 0.6239727735519409 | 0.7862313389778137 | 0.6229619383811951 | |
+| ETTm1 | 0.3197086751461029 | 0.35937389731407166 | 0.31890594959259033 | 0.3591580092906952 | 0.3199918270111084 | 0.36085328459739685 | |
+| weather | 0.17274896800518036 | 0.23129615187644958 | 0.1728384792804718 | 0.23151825368404388 | 0.17323358356952667 | 0.2315613329410553 | |
+| flotation | 0.7924071550369263 | 0.6244009733200073 | 0.7909660339355469 | 0.6239727735519409 | 0.7862313389778137 | 0.6229619383811951 | |
 
 ## E5/E6 — FiLM On/Off (best alpha from E2~E4)
 
@@ -54,6 +54,24 @@ E4: E_ratio=0.863024, E_season=0.0986495, E_trend=0.621546, alpha_max=0.00033535
 ```
 E0: no extra stats (only mse/mae)
 E1: no extra stats (only mse/mae)
+E2: no extra stats (only mse/mae)
 E3: no extra stats (only mse/mae)
 E4: no extra stats (only mse/mae)
+```
+
+## Diagnostics E2 (stats.csv last row, excluding mse/mae)
+
+### ETTm1_V5_E2
+```
+E_ratio=0.87274, E_season=0.120789, E_trend=0.82836, alpha_max=0.00033535, alpha_mean=0.00033535, alpha_min=0.00033535, alpha_p10=0.00033535, alpha_p50=0.00033535, alpha_p90=0.00033535, alpha_sat_high=0, alpha_sat_low=1, alpha_std=0, bridge_adj_diff_max=0.121657, bridge_adj_diff_mean=0.0420591, bridge_adj_diff_min=0.00162154, bridge_adj_diff_p10=0.0178002, bridge_adj_diff_p50=0.04384, bridge_adj_diff_p90=0.062319, bridge_adj_diff_sat_high=0, bridge_adj_diff_sat_low=0.65625, bridge_adj_diff_std=0.0173008, bridge_alpha_max=0.0024259, bridge_alpha_mean=0.0024259, bridge_alpha_min=0.0024259, bridge_alpha_p10=0.0024259, bridge_alpha_p50=0.0024259, bridge_alpha_p90=0.0024259, bridge_alpha_sat_high=0, bridge_alpha_sat_low=1, bridge_alpha_std=0, bridge_entropy_max=1.79176, bridge_entropy_mean=1.78165, bridge_entropy_min=0.462253, bridge_entropy_p10=1.77371, bridge_entropy_p50=1.79125, bridge_entropy_p90=1.79175, bridge_entropy_sat_high=0.999628, bridge_entropy_sat_low=0, bridge_entropy_std=0.0418779, bridge_topk_mass_max=0.999902, bridge_topk_mass_mean=0.875668, bridge_topk_mass_min=0.857146, bridge_topk_mass_p10=0.857916, bridge_topk_mass_p50=0.865559, bridge_topk_mass_p90=0.906819, bridge_topk_mass_sat_high=0.0332961, bridge_topk_mass_sat_low=0, bridge_topk_mass_std=0.0258594, gate_max=2.06115e-09, gate_mean=2.06115e-09, gate_min=2.06115e-09, gate_p10=2.06115e-09, gate_p50=2.06115e-09, gate_p90=2.06115e-09, gate_sat_high=0, gate_sat_low=1, gate_std=2.22045e-16
+```
+
+### weather_V5_E2
+```
+E_ratio=0.863024, E_season=0.0986495, E_trend=0.621546, alpha_max=0.00033535, alpha_mean=0.00033535, alpha_min=0.00033535, alpha_p10=0.00033535, alpha_p50=0.00033535, alpha_p90=0.00033535, alpha_sat_high=0, alpha_sat_low=1, alpha_std=0, bridge_adj_diff_max=0.0793866, bridge_adj_diff_mean=0.0555362, bridge_adj_diff_min=0.0204232, bridge_adj_diff_p10=0.0430874, bridge_adj_diff_p50=0.0566952, bridge_adj_diff_p90=0.0657613, bridge_adj_diff_sat_high=0, bridge_adj_diff_sat_low=0.240057, bridge_adj_diff_std=0.00928151, bridge_alpha_max=0.00249139, bridge_alpha_mean=0.00249139, bridge_alpha_min=0.00249139, bridge_alpha_p10=0.00249139, bridge_alpha_p50=0.00249139, bridge_alpha_p90=0.00249139, bridge_alpha_sat_high=0, bridge_alpha_sat_low=1, bridge_alpha_std=0, bridge_entropy_max=1.79176, bridge_entropy_mean=1.79176, bridge_entropy_min=1.79084, bridge_entropy_p10=1.79176, bridge_entropy_p50=1.79176, bridge_entropy_p90=1.79176, bridge_entropy_sat_high=1, bridge_entropy_sat_low=0, bridge_entropy_std=2.10921e-05, bridge_topk_mass_max=0.306788, bridge_topk_mass_mean=0.285871, bridge_topk_mass_min=0.285718, bridge_topk_mass_p10=0.285727, bridge_topk_mass_p50=0.285751, bridge_topk_mass_p90=0.285964, bridge_topk_mass_sat_high=0, bridge_topk_mass_sat_low=0, bridge_topk_mass_std=0.000669637, gate_max=2.06115e-09, gate_mean=2.06115e-09, gate_min=2.06115e-09, gate_p10=2.06115e-09, gate_p50=2.06115e-09, gate_p90=2.06115e-09, gate_sat_high=0, gate_sat_low=1, gate_std=2.22045e-16
+```
+
+### flotation_V5_E2
+```
+no extra stats (only mse/mae)
 ```
