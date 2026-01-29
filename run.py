@@ -235,6 +235,16 @@ if __name__ == '__main__':
     parser.add_argument('--decomp_gate_force', type=float, default=-1.0,
                         help='force decomp gate value in [0,1], -1 disables')
 
+    # Bridge Coupling
+    parser.add_argument('--bridge_couple', type=int, default=0, help='use bridge coupling attention (0 disables)')
+    parser.add_argument('--bridge_rank', type=int, default=8, help='rank for bridge coupling QK')
+    parser.add_argument('--bridge_scale', type=int, default=8, help='segment length for bridge coupling')
+    parser.add_argument('--bridge_topk', type=int, default=0, help='top-k sparsify for bridge adjacency')
+    parser.add_argument('--bridge_alpha_init', type=float, default=-20.0, help='init logit for bridge alpha')
+    parser.add_argument('--bridge_stable_window', type=int, default=0, help='stable detrend window (0 uses patch_len/16)')
+    parser.add_argument('--bridge_film', type=int, default=0, help='use FiLM modulation for content V')
+    parser.add_argument('--bridge_film_hidden', type=int, default=16, help='hidden size for FiLM MLP')
+
     # DynamicGraphMixer logging
     parser.add_argument('--graph_log_exp_id', type=str, default='',
                         help='log subdir name for graph logs (overrides setting when provided)')

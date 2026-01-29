@@ -8,6 +8,7 @@ from modules.graph_map import GraphMapNormalizer
 from modules.mixer import GraphMixer
 from modules.factor_mixer import FactorMixer
 from modules.decomp_gate import DecompGate
+from modules.bridge_coupler import StableTokenDetrend, StatsFiLM, BridgeCouplingAttention
 from modules.head import ForecastHead
 from modules.stable_feat import StableFeature, StableFeatureToken
 
@@ -73,6 +74,14 @@ class Model(nn.Module):
         self.decomp_gate_hidden = int(getattr(configs, "decomp_gate_hidden", 16))
         self.decomp_gate_bias_init = float(getattr(configs, "decomp_gate_bias_init", 2.0))
         self.decomp_gate_force = float(getattr(configs, "decomp_gate_force", -1.0))
+        self.bridge_couple = bool(int(getattr(configs, "bridge_couple", 0)))
+        self.bridge_rank = int(getattr(configs, "bridge_rank", 8))
+        self.bridge_scale = int(getattr(configs, "bridge_scale", 8))
+        self.bridge_topk = int(getattr(configs, "bridge_topk", 0))
+        self.bridge_alpha_init = float(getattr(configs, "bridge_alpha_init", -20.0))
+        self.bridge_stable_window = int(getattr(configs, "bridge_stable_window", 0))
+        self.bridge_film = bool(int(getattr(configs, "bridge_film", 0)))
+        self.bridge_film_hidden = int(getattr(configs, "bridge_film_hidden", 16))
         self.graph_source = str(getattr(configs, "graph_source", "content_mean")).lower()
         self.stable_level = str(getattr(configs, "stable_level", "point")).lower()
         self.stable_feat_type = str(getattr(configs, "stable_feat_type", "none")).lower()
@@ -174,6 +183,23 @@ class Model(nn.Module):
                 hidden_dim=self.decomp_gate_hidden,
                 bias_init=self.decomp_gate_bias_init,
             )
+        self.bridge_detrend = None
+        self.bridge_film_layer = None
+        self.bridge_coupler = None
+        if self.bridge_couple:
+            window = self.bridge_stable_window
+            if window <= 0:
+                window = self.patch_len if self.use_patch else 16
+            self.bridge_detrend = StableTokenDetrend(window=window)
+            if self.bridge_film:
+                self.bridge_film_layer = StatsFiLM(hidden=self.bridge_film_hidden)
+            self.bridge_coupler = BridgeCouplingAttention(
+                d_model=configs.d_model,
+                rank=self.bridge_rank,
+                scale=self.bridge_scale,
+                topk=self.bridge_topk,
+                alpha_init=self.bridge_alpha_init,
+            )
         self.head = ForecastHead(
             d_model=configs.d_model,
             num_tokens=self.num_tokens,
@@ -194,6 +220,10 @@ class Model(nn.Module):
         self.last_factor_alpha = None
         self.last_factor_reg = None
         self.last_decomp_gate = None
+        self.last_bridge_alpha = None
+        self.last_bridge_entropy = None
+        self.last_bridge_topk_mass = None
+        self.last_bridge_adj_diff = None
 
     def _sparsify_adj(self, adj):
         if self.adj_sparsify != "topk":
@@ -317,6 +347,33 @@ class Model(nn.Module):
 
     def _forecast_graph(self, x_enc):
         h_time = self._encode_with_patch_mode(x_enc, self.temporal_encoder)
+        if self.bridge_coupler is not None:
+            h_stable = self.bridge_detrend(h_time) if self.bridge_detrend is not None else h_time
+            if self.bridge_film_layer is not None:
+                mu = x_enc.mean(dim=1)
+                sigma = x_enc.std(dim=1, unbiased=False)
+                h_content = self.bridge_film_layer(mu, sigma, h_time)
+            else:
+                h_content = h_time
+            h_mix = self.bridge_coupler(h_stable, h_content)
+            self.graph_reg_loss = h_time.new_tensor(0.0)
+            self.factor_reg_loss = h_time.new_tensor(0.0)
+            self.last_bridge_alpha = self.bridge_coupler.last_alpha
+            self.last_bridge_entropy = self.bridge_coupler.last_entropy
+            self.last_bridge_topk_mass = self.bridge_coupler.last_topk_mass
+            self.last_bridge_adj_diff = self.bridge_coupler.last_adj_diff
+            if self.graph_log:
+                self.last_graph_adjs = None
+                self.last_graph_raw_adjs = None
+                self.last_graph_base_adj = None
+            if self.c_out < h_mix.shape[1]:
+                h_mix = h_mix[:, -self.c_out:, :, :]
+            return self.head(h_mix)
+
+        self.last_bridge_alpha = None
+        self.last_bridge_entropy = None
+        self.last_bridge_topk_mass = None
+        self.last_bridge_adj_diff = None
         if self.factor_mixer is not None:
             h_mix = self.factor_mixer(h_time)
             self.graph_reg_loss = h_time.new_tensor(0.0)

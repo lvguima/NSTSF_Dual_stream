@@ -77,6 +77,18 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         factor_reg = getattr(model_ref, "last_factor_reg", None)
         if factor_reg is not None:
             stats["factor_reg"] = float(factor_reg.detach().cpu())
+        bridge_alpha = getattr(model_ref, "last_bridge_alpha", None)
+        if bridge_alpha is not None:
+            stats.update(compute_tensor_stats(bridge_alpha, prefix="bridge_alpha_"))
+        bridge_entropy = getattr(model_ref, "last_bridge_entropy", None)
+        if bridge_entropy is not None:
+            stats.update(compute_tensor_stats(bridge_entropy, prefix="bridge_entropy_"))
+        bridge_topk = getattr(model_ref, "last_bridge_topk_mass", None)
+        if bridge_topk is not None:
+            stats.update(compute_tensor_stats(bridge_topk, prefix="bridge_topk_mass_"))
+        bridge_adj_diff = getattr(model_ref, "last_bridge_adj_diff", None)
+        if bridge_adj_diff is not None:
+            stats.update(compute_tensor_stats(bridge_adj_diff, prefix="bridge_adj_diff_"))
         stats = {
             "epoch": epoch,
             "step": step,
